@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ms"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Jom Kenal Huruf Al-Quran</title>
+<style>
+:root{--tq:#299F9B;--mg:#D94B83;--cream:#FFF9F3;--mint:#DDEFEA;--pink:#F8E5ED;--sky:#D9EDF5;--ink:#0b4f6c}
+*{box-sizing:border-box}html,body{height:100%;margin:0;background:var(--mint);font-family:"Baloo 2","Nunito",system-ui,sans-serif;-webkit-tap-highlight-color:transparent;overscroll-behavior:none}
+#app{height:100%;display:flex;flex-direction:column;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+#wrap{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;background:var(--sky);container-type:size}
+#stage{position:relative;aspect-ratio:16/9;width:min(100cqw,calc(100cqh * 16 / 9));background:var(--cream);overflow:hidden;border-radius:14px;box-shadow:0 8px 28px #0003;user-select:none;-webkit-user-select:none}
+#stage>img,#stage>video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none}
+.hs{position:absolute;border:0;padding:0;background:transparent;border-radius:14px;cursor:pointer;display:block;transition:transform .12s,background .12s}
+.hs.nav:hover,.hs.nav:focus-visible{background:#fff3;box-shadow:0 0 0 3px var(--mg) inset;outline:0}
+.hs.ans:focus{outline:0}.hs:active{transform:scale(.95);background:#d94b8338}
+#ink{position:absolute;touch-action:none;cursor:crosshair;z-index:1}#ink.er{cursor:cell}
+.hs{z-index:2}
+#bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center;padding:8px 12px;background:var(--cream);border-top:3px solid var(--tq)}
+#bar button{font:700 15px/1 inherit;font-family:inherit;min-height:44px;min-width:44px;padding:0 16px;border:0;border-radius:22px;background:var(--tq);color:#fff;cursor:pointer;box-shadow:0 3px 0 #1c7773;display:inline-flex;align-items:center;gap:6px}
+#bar button:active{transform:translateY(2px);box-shadow:none}#home{background:var(--mg)!important;box-shadow:0 3px 0 #a93565!important}
+#bar button:disabled{opacity:.4;cursor:default}
+#tools{display:none;gap:8px}#tools.on{display:flex}
+#tools button{background:#fff;color:var(--ink);box-shadow:0 3px 0 #9bc9c7;border:2px solid var(--tq)}
+#tools button[aria-pressed=true]{background:var(--ink);color:#fff;border-color:var(--ink);box-shadow:0 3px 0 #06293a}
+#info{font-size:13px;color:#1c5f5c;min-width:110px;text-align:center}
+svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+#panel{position:fixed;inset:0;background:#0006;display:none;align-items:center;justify-content:center;z-index:9;padding:12px}
+#panel.on{display:flex}#card{background:var(--cream);border-radius:22px;max-width:640px;width:100%;max-height:92%;overflow:auto;padding:18px;border:4px solid var(--tq)}
+#card h2{margin:0 0 6px;color:var(--mg)}#card p{margin:4px 0;color:#1c5f5c}
+#chips{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin:10px 0}
+#chips button{background:#fff;border:2px solid #cfe5e2;border-radius:14px;min-height:52px;font:700 26px/1 "Amiri","Scheherazade New","Noto Naskh Arabic",serif;color:#7a8e8c;cursor:pointer;position:relative}
+#chips button.done{border-color:var(--mg);color:var(--ink);background:var(--pink)}#chips button small{position:absolute;bottom:1px;right:4px;font:11px/1 system-ui}
+#badges{display:flex;flex-wrap:wrap;gap:8px}.b{padding:6px 12px;border-radius:16px;background:#e6efee;color:#8aa;font-size:14px}.b.on{background:var(--mg);color:#fff}
+@media(max-height:480px){#bar{padding:4px 8px;gap:6px}#bar button{min-height:38px;padding:0 10px;font-size:13px}#back .lb,#home .lb,#next .lb,#prog .lb{display:none}#info{display:none}}
+@media(max-width:560px){#bar button{padding:0 12px;font-size:14px}#bar .lb{display:none}#info{min-width:0;font-size:12px}}
+</style></head>
+<body><div id="app">
+<div id="wrap"><div id="stage"><img id="bg" alt=""><video id="vid" playsinline preload="auto"></video><canvas id="ink" aria-label="Kawasan menulis"></canvas></div></div>
+<nav id="bar" aria-label="Navigasi">
+<button id="back" aria-label="Kembali"><svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg><span class="lb">Kembali</span></button>
+<button id="home" aria-label="Menu utama (Galeri Huruf)"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8M5 10v10h14V10"/></svg><span class="lb">Home</span></button>
+<button id="next" aria-label="Seterusnya"><span class="lb">Seterusnya</span><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
+<div id="tools" role="group" aria-label="Alat menulis">
+<button id="pen" aria-pressed="true"><svg viewBox="0 0 24 24"><path d="M4 20l1-4L16 5l3 3L8 19zM14 7l3 3"/></svg><span>Pena</span></button>
+<button id="era" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M8 20h12M5 15l9-9 5 5-6 6H8zM9 11l5 5"/></svg><span>Pemadam</span></button>
+<button id="clr"><svg viewBox="0 0 24 24"><path d="M5 7h14M9 7V4h6v3M7 7l1 13h8l1-13"/></svg><span>Padam Semua</span></button></div>
+<button id="snd" aria-label="Bunyi" aria-pressed="true"></button>
+<button id="prog" aria-label="Kemajuan"><svg viewBox="0 0 24 24"><path d="M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6L12 16.5 6.7 19.4l1.2-6L3.4 9.3l6-.7z"/></svg><span class="lb">Kemajuan</span></button>
+<span id="info"></span><div id="rot" style="width:100%;text-align:center;font-size:13px;color:var(--mg);display:none">↻ Putar telefon ke mendatar supaya ruang menulis lebih besar</div></nav></div>
+<div id="panel" role="dialog" aria-modal="true"><div id="card"><h2>Ganjaran dan Kemajuan</h2><p id="sum"></p><div id="chips"></div><div id="badges"></div><p style="margin-top:12px"><button id="shut" style="font:700 15px inherit;padding:10px 22px;border:0;border-radius:20px;background:var(--tq);color:#fff;cursor:pointer">Tutup</button></p></div></div>
+<script src="data/slides.js"></script>
+<script>
+(()=>{
+const D=window.JKH_DATA,S=D.s,FB=D.fb,ST=D.starts,WR=new Set(D.write),R=D.region,N=D.total,$=id=>document.getElementById(id);
+const bg=$('bg'),vid=$('vid'),stage=$('stage'),ink=$('ink'),ctx=ink.getContext('2d'),KEY='jkh.v2';
+const LET='أبتثجحخدذرزسشصضطظعغفقكلمنوهي'.split('');
+let cur=1,hist=[],lock=0,origin=1,started=false,tool='pen',cvt=null,started0=0;
+let P={vis:[],ok:[],tried:[],wrote:[],sound:1};
+try{Object.assign(P,JSON.parse(localStorage.getItem(KEY)||'{}'))}catch(e){}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(P))}catch(e){}};
+const add=(k,v)=>{if(!P[k].includes(v)){P[k].push(v);save()}};
+const modOf=n=>{for(let i=ST.length-1;i>=0;i--)if(n>=ST[i])return n>196?-1:i;return -1};
+const isAns=n=>S[n].h.some(h=>FB[h[4]]);
+/* ---- audio: one background track, play/pause only (never restarted) ---- */
+const bgm=new Audio('media/bgm.m4a');bgm.loop=true;bgm.volume=.22;
+const ICON_ON='<svg viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9zM16 9a4 4 0 010 6M18.5 6.5a8 8 0 010 11"/></svg>',ICON_OFF='<svg viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9zM17 9l5 6M22 9l-5 6"/></svg>';
+function audio(){const own=S[cur].a;if($('snd').dataset.s!=P.sound){$('snd').innerHTML=P.sound?ICON_ON:ICON_OFF;$('snd').dataset.s=P.sound}$('snd').setAttribute('aria-pressed',!!P.sound);$('snd').setAttribute('aria-label',P.sound?'Bunyi hidup':'Bunyi mati');
+  vid.muted=!P.sound;if(P.sound&&started&&!own)bgm.play().catch(()=>{});else bgm.pause()}
+$('snd').onclick=()=>{P.sound=P.sound?0:1;save();started=true;audio()};
+const first=()=>{started=true;audio();removeEventListener('pointerdown',first);removeEventListener('keydown',first)};
+addEventListener('pointerdown',first);addEventListener('keydown',first);
+/* ---- writing canvas ---- */
+const ink_=new Map();let cur_s=null,dpr=1;
+function size(){const r=stage.getBoundingClientRect();dpr=devicePixelRatio||1;const w=r.width*R[2]/100,h=r.height*R[3]/100;
+  Object.assign(ink.style,{left:R[0]+'%',top:R[1]+'%',width:R[2]+'%',height:R[3]+'%'});ink.width=Math.round(w*dpr);ink.height=Math.round(h*dpr);redraw()}
+function path(s){const c=ctx,W=ink.width,H=ink.height,p=s.p;c.beginPath();c.moveTo(p[0][0]*W,p[0][1]*H);
+  if(p.length<3)c.lineTo(p[0][0]*W+.01,p[0][1]*H);
+  for(let i=1;i<p.length-1;i++){const mx=(p[i][0]+p[i+1][0])/2*W,my=(p[i][1]+p[i+1][1])/2*H;c.quadraticCurveTo(p[i][0]*W,p[i][1]*H,mx,my)}
+  if(p.length>2)c.lineTo(p[p.length-1][0]*W,p[p.length-1][1]*H);
+  c.lineCap=c.lineJoin='round';c.lineWidth=(s.t==='e'?.045:.011)*stage.getBoundingClientRect().width*dpr;
+  c.globalCompositeOperation=s.t==='e'?'destination-out':'source-over';c.strokeStyle='#0b4f6c';c.stroke();c.globalCompositeOperation='source-over'}
+function redraw(){ctx.clearRect(0,0,ink.width,ink.height);(ink_.get(cur)||[]).forEach(path)}
+const pt=e=>{const r=ink.getBoundingClientRect();return[(e.clientX-r.left)/r.width,(e.clientY-r.top)/r.height]};
+ink.addEventListener('pointerdown',e=>{if(e.button>0)return;e.preventDefault();try{ink.setPointerCapture(e.pointerId)}catch(_){}
+  cur_s={t:tool==='era'?'e':'p',p:[pt(e)]};if(!ink_.has(cur))ink_.set(cur,[]);ink_.get(cur).push(cur_s);redraw()});
+ink.addEventListener('pointermove',e=>{if(!cur_s)return;e.preventDefault();(e.getCoalescedEvents?e.getCoalescedEvents():[e]).forEach(x=>cur_s.p.push(pt(x)));redraw()});
+const up=()=>{if(cur_s&&cur_s.t==='p'&&cur_s.p.length>0){const m=modOf(cur);if(m>=0)add('wrote',m)}cur_s=null};
+ink.addEventListener('pointerup',up);ink.addEventListener('pointercancel',up);
+ink.addEventListener('contextmenu',e=>e.preventDefault());
+function setTool(t){tool=t;$('pen').setAttribute('aria-pressed',t==='pen');$('era').setAttribute('aria-pressed',t==='era');ink.className=t==='era'?'er':''}
+$('pen').onclick=()=>setTool('pen');$('era').onclick=()=>setTool('era');
+$('clr').onclick=()=>{const a=ink_.get(cur);if(a&&a.length&&confirm('Padam semua tulisan?')){ink_.set(cur,[]);redraw()}};
+new ResizeObserver(size).observe(stage);
+/* ---- slides ---- */
+const hint=()=>{$('rot').style.display=(WR.has(cur)&&innerHeight>innerWidth&&innerWidth<700)?'block':'none'};addEventListener('resize',hint);
+function render(n){
+  const s=S[n];cur=n;cur_s=null;
+  stage.querySelectorAll('.hs').forEach(e=>e.remove());
+  bg.src='media/img/'+s.i+'.webp';
+  vid.pause();vid.removeAttribute('src');vid.load();
+  if(s.v){vid.style.display='';vid.poster='media/img/'+s.i+'.webp';vid.src='media/vid/'+s.v+'.mp4';vid.loop=false;vid.currentTime=0;vid.play().catch(()=>{})}else vid.style.display='none';
+  const w=WR.has(n);ink.style.display=w?'block':'none';$('tools').className=w?'on':'';if(w){setTool('pen');size()}
+  s.h.forEach(([x,y,wd,ht,t])=>{const ext=typeof t==='string',a=ext?document.createElement('a'):document.createElement('button');
+    const ans=!ext&&FB[t];a.className='hs '+(ans?'ans':'nav');
+    if(ext){a.href=t;a.target='_blank';a.rel='noopener noreferrer';a.setAttribute('aria-label','Buka permainan BE.QURAN (tab baharu)')}
+    else{a.setAttribute('aria-label',ans?'Pilihan jawapan':'Ke slaid '+t);if(ans)a.tabIndex=-1;a.onclick=()=>go(t)}
+    Object.assign(a.style,{left:x+'%',top:y+'%',width:wd+'%',height:ht+'%'});stage.appendChild(a)});
+  if(n>=3&&n<=195&&!FB[n]&&!isAns(n)){const hit=(r)=>s.h.some(([x,y,a,b])=>x<r[0]+r[2]&&x+a>r[0]&&y<r[1]+r[3]&&y+b>r[1]);
+    [[[81,86,17,12],()=>{const t=nextOf(n);if(t)go(t)},'Seterusnya'],[[1,86,10,12],()=>{hist.length?$('back').click():go(n-1)},'Kembali']].forEach(([r,f,l])=>{
+      if(hit(r)||(l==='Seterusnya'&&!nextOf(n)))return;const a=document.createElement('button');a.className='hs nav recon';a.setAttribute('aria-label',l);a.onclick=f;
+      Object.assign(a.style,{left:r[0]+'%',top:r[1]+'%',width:r[2]+'%',height:r[3]+'%'});stage.appendChild(a)})}
+  hint();
+  P.vis.includes(n)||P.vis.push(n);save();
+  const nx=nextOf(n);$('back').disabled=!hist.length;$('next').disabled=!nx;
+  $('next').title=nx?'':(isAns(n)?'Pilih jawapan dahulu':FB[n]==='no'?'Tekan Kembali untuk mencuba lagi':'');
+  $('info').textContent='Slaid '+n+'/'+N;
+  if(location.hash!=='#s='+n)history.replaceState(null,'','#s='+n);
+  audio();
+  [...new Set(s.h.map(a=>a[4]).filter(t=>typeof t==='number'&&!FB[t]).concat(nx||[]))].slice(0,6).forEach(t=>{if(S[t])new Image().src='media/img/'+S[t].i+'.webp'});
+}
+function nextOf(n){ // toolbar "Seterusnya": never skips a question, never lands on an answer screen directly
+  if(isAns(n))return null;
+  let m;if(FB[n]){if(FB[n]==='no')return null;m=origin+1}else m=n+1;
+  while(m<=N&&FB[m])m++;return m<=N?m:null}
+function go(n,back){
+  const t=+n;if(!S[t]||lock)return;lock=1;setTimeout(()=>lock=0,350);
+  if(FB[t]&&!FB[cur]){origin=cur;add('tried',cur);if(FB[t]==='ok')add('ok',cur)}
+  if(!back)hist.push(cur);render(t)}
+$('home').onclick=()=>{hist=[];go(D.home)};
+$('next').onclick=()=>{const t=nextOf(cur);if(t)go(t)};
+$('back').onclick=()=>{if(hist.length)go(hist.pop(),1)};
+addEventListener('keydown',e=>{if(panel.classList.contains('on'))return;if(e.key==='ArrowRight')$('next').click();else if(e.key==='ArrowLeft')$('back').click();else if(e.key==='Home')$('home').click()});
+addEventListener('hashchange',()=>{const m=location.hash.match(/s=(\d+)/);if(m&&+m[1]!==cur&&S[m[1]]){hist=[];go(m[1],1)}});
+/* ---- progress & rewards: only real events (visited / wrote / answered correctly) ---- */
+const panel=$('panel');
+$('prog').onclick=()=>{
+  const okMods=new Set(P.ok.map(modOf).filter(i=>i>=0)),wr=new Set(P.wrote.filter(i=>i>=0)),seen=new Set(P.vis.map(modOf).filter(i=>i>=0));
+  $('sum').textContent='Huruf diterokai: '+seen.size+'/28 · Huruf ditulis: '+wr.size+' · Jawapan betul: '+P.ok.length+' daripada '+P.tried.length+' soalan dicuba';
+  $('chips').innerHTML='';
+  LET.forEach((l,i)=>{const b=document.createElement('button');b.textContent=l;if(okMods.has(i)||wr.has(i))b.className='done';
+    b.innerHTML=l+(okMods.has(i)?'<small>⭐</small>':wr.has(i)?'<small>✏️</small>':'');b.setAttribute('aria-label','Huruf '+(i+1));b.onclick=()=>{panel.classList.remove('on');go(ST[i])};$('chips').appendChild(b)});
+  const B=[['Bintang Pertama',P.ok.length>=1],['Penulis Cilik (5 huruf)',wr.size>=5],['Pembaca Pintar (10 betul)',P.ok.length>=10],['Penjelajah Huruf (28 huruf)',seen.size>=28]];
+  $('badges').innerHTML=B.map(b=>'<span class="b'+(b[1]?' on':'')+'">'+(b[1]?'🏅 ':'🔒 ')+b[0]+'</span>').join('');
+  panel.classList.add('on')};
+$('shut').onclick=()=>panel.classList.remove('on');
+panel.addEventListener('pointerdown',e=>{if(e.target===panel)panel.classList.remove('on')});
+const m=location.hash.match(/s=(\d+)/);render(m&&S[m[1]]?+m[1]:1);
+window.__jkh={go:n=>go(n),cur:()=>cur,nextOf,bgm};
+})();
+</script></body></html>
